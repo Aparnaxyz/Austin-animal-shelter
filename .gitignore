@@ -1,0 +1,6 @@
+.ipynb_checkpoints/
+__pycache__/
+.DS_Store
+
+# Built by src/clean.py and src/build_model.py
+data/processed/
