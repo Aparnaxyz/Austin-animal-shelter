@@ -26,6 +26,7 @@ def main():
         con.execute(f"COPY {t} TO '{OUT / (t + '.csv')}' (HEADER, DELIMITER ',')")
         print(f"exported {t}: {con.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0]:,} rows")
 
+    print(con.execute((SQL / "03_kpis.sql").read_text()).df().to_string(index=False))
 
 
 if __name__ == "__main__":
