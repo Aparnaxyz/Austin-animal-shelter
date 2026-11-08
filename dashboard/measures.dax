@@ -1,0 +1,46 @@
+// ---------- Volume ----------
+Intakes = COUNTROWS ( fact_stay )
+
+Adoptions =
+CALCULATE ( [Intakes], dim_outcome_type[outcome_type] = "Adoption" )
+
+// ---------- Outcomes ----------
+Live Outcomes =
+CALCULATE ( [Intakes], dim_outcome_type[outcome_group] = "Live outcome" )
+
+Final Outcomes =
+CALCULATE (
+    [Intakes],
+    dim_outcome_type[outcome_group] IN { "Live outcome", "Non-live outcome" }
+)
+
+Live Release Rate = DIVIDE ( [Live Outcomes], [Final Outcomes] )
+
+No-Kill Goal = 0.95
+
+// ---------- Time in care ----------
+Median Stay (days) = MEDIAN ( fact_stay[length_of_stay_days] )
+
+Median Days to Adoption =
+CALCULATE ( [Median Stay (days)], dim_outcome_type[outcome_type] = "Adoption" )
+
+Avg Animals in Care =
+AVERAGEX (
+    VALUES ( dim_date[date] ),
+    CALCULATE ( SUM ( fact_daily_census[animals_in_care] ) )
+)
+
+// ---------- Returns ----------
+Returns After Adoption =
+CALCULATE ( [Intakes], fact_stay[is_return_after_adoption] = TRUE () )
+
+Return Rate After Adoption = DIVIDE ( [Returns After Adoption], [Adoptions] )
+
+Returns Within 30 Days =
+CALCULATE (
+    [Returns After Adoption],
+    fact_stay[days_since_last_outcome] <= 30
+)
+
+Repeat Intake Rate =
+DIVIDE ( CALCULATE ( [Intakes], fact_stay[is_repeat_intake] = TRUE () ), [Intakes] )
